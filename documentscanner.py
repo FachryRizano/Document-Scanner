@@ -117,9 +117,13 @@ imgContour = img.copy()
 
 imgThres = preProcessing(img)
 biggest = getContours(imgThres)
-imgWarped = getWarp(img,biggest)
-imgArray = ([img,imgContour],
-            [imgThres,imgWarped])
+if biggest.shape != 0:
+    imgWarped = getWarp(img,biggest)
+    imgArray = ([img,imgThres],
+            [imgContour,imgWarped])
+else:
+    imgArray = ([img,imgThres],
+                [img,img])
 stackedImages = stackImages(0.6,imgArray)
 cv2.imshow("Result",stackedImages)
 cv2.waitKey(0)
