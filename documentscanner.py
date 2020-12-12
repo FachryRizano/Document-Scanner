@@ -4,10 +4,11 @@ wImg = 640
 hImg = 480
 
 
-cap = cv2.VideoCapture(0)
-cap.set(3,wImg)
-cap.set(4,hImg)
-cap.set(10,150)
+# cap = cv2.VideoCapture(0)
+# cap.set(3,wImg)
+# cap.set(4,hImg)
+# cap.set(10,150)
+
 
 def preProcessing(img):
     #make gray image
@@ -22,6 +23,7 @@ def preProcessing(img):
     imgThreshold = cv2.erode(imgDial,kernel,iterations=1)
 
     return imgThreshold
+
 
 def getContours(img):
     biggest = np.array([])
@@ -40,22 +42,47 @@ def getContours(img):
                 biggest = approx
                 maxArea = area
     return biggest
+def reorder(myPoints):
+    myPoints = myPoints.reshape((4,2))
+    myNewPoints = np.zeros((4,1,2),np.int32)
+    add = myPoints.sum(1)
+    print(add)
+
+    myNewPoints[0] = myPoints[np.argmin(add)]
+    myNewPoints[3] = myPoints[np.argmax(add)]
+    diff = np.diff(myPoints,axis=1)
+    myNewPoints[1] = myPoints[np.argmin(diff)]
+    myNewPoints[2] = myPoints[np.argmax(diff)]
+    return myNewPoints
 def getWarp(img,biggest):
+    biggest = reorder(biggest)
     print(biggest)
     pts1 = np.float32(biggest)
     pts2 = np.float32([[0,0],[wImg,0],[0,hImg],[wImg,hImg]])
     matrix = cv2.getPerspectiveTransform(pts1,pts2)
     imgOutput = cv2.warpPerspective(img,matrix,(wImg,hImg))
+    return imgOutput
 
-while True:
-    success, img = cap.read()
-    img = cv2.resize(img,(wImg,hImg))
-    imgContour = img.copy()
+# while True:
+#     success, img = cap.read()
+#     img = cv2.resize(img,(wImg,hImg))
+#     imgContour = img.copy()
+#
+#     imgThres = preProcessing(img)
+#     biggest = getContours(imgThres)
+#     imgWarped = getWarp(img,biggest)
+#
+#     cv2.imshow("Result", imgWarped)
+#     if cv2.waitKey(1) & 0xFF == ord('q'):
+#         break
 
-    imgThres = preProcessing(img)
-    biggest = getContours(imgThres)
-    getWarp(img,biggest)
+img = cv2.imread("Resources/paper.jpg")
 
-    cv2.imshow("Result", imgContour)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+img = cv2.resize(img,(wImg,hImg))
+imgContour = img.copy()
+
+imgThres = preProcessing(img)
+biggest = getContours(imgThres)
+imgWarped = getWarp(img,biggest)
+cv2.imshow("Result",imgWarped)
+cv2.waitKey(0)
