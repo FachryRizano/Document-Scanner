@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
-wImg = 640
-hImg = 480
+wImg = 480
+hImg = 640
 
 
 # cap = cv2.VideoCapture(0)
@@ -61,7 +61,9 @@ def getWarp(img,biggest):
     pts2 = np.float32([[0,0],[wImg,0],[0,hImg],[wImg,hImg]])
     matrix = cv2.getPerspectiveTransform(pts1,pts2)
     imgOutput = cv2.warpPerspective(img,matrix,(wImg,hImg))
-    return imgOutput
+    imgCropped = imgOutput[20:imgOutput.shape[0]-50,20:imgOutput.shape[1]-20]
+    imgCropped = cv2.resize(imgCropped,(wImg,hImg))
+    return imgCropped
 
 # while True:
 #     success, img = cap.read()
